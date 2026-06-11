@@ -1,0 +1,471 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.app{padding:1.5rem 0}
+.header{margin-bottom:1.5rem}
+.header h1{font-size:22px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px}
+.header p{font-size:14px;color:var(--color-text-secondary);line-height:1.6}
+.tabs{display:flex;gap:6px;margin-bottom:1.5rem;border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:0}
+.tab{padding:8px 16px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;color:var(--color-text-secondary);border-bottom:2px solid transparent;margin-bottom:-0.5px;border-radius:0;transition:color 0.15s}
+.tab.active{color:var(--color-text-primary);border-bottom:2px solid var(--color-text-primary)}
+.tab:hover:not(.active){color:var(--color-text-primary)}
+.panel{display:none}
+.panel.active{display:block}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.col-label{font-size:11px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-text-secondary);margin-bottom:10px}
+.roadmap-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
+.roadmap-card.personalized{border:2px solid #5DCAA5}
+.card-header{padding:12px 14px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.card-header h3{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.card-header p{font-size:12px;color:var(--color-text-secondary);margin-top:3px}
+.week-block{padding:12px 14px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.week-block:last-child{border-bottom:none}
+.week-title{font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.week-badge{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500}
+.wk1{background:#E1F5EE;color:#0F6E56}.wk2{background:#E6F1FB;color:#185FA5}.wk3{background:#FAEEDA;color:#854F0B}.wk4{background:#FBEAF0;color:#993556}
+.task-list{list-style:none;display:flex;flex-direction:column;gap:4px}
+.task-list li{font-size:12px;color:var(--color-text-primary);padding:5px 8px;background:var(--color-background-secondary);border-radius:6px;line-height:1.4}
+.task-list li .day-tag{font-size:10px;color:var(--color-text-secondary);font-weight:500;display:block;margin-bottom:2px}
+.outcome-section{padding:12px 14px;background:var(--color-background-secondary);border-top:0.5px solid var(--color-border-tertiary)}
+.outcome-section h4{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px}
+.outcome-tags{display:flex;flex-wrap:wrap;gap:4px}
+.tag{font-size:11px;padding:3px 8px;border-radius:8px;background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary)}
+.analysis-section{margin-top:1.5rem}
+.analysis-section h2{font-size:16px;font-weight:500;color:var(--color-text-primary);margin-bottom:1rem}
+.question-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px;margin-bottom:10px}
+.question-card .q{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px}
+.answer-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.answer-box{padding:10px 12px;border-radius:8px;font-size:12px;line-height:1.6}
+.answer-box.generic{background:#FAECE7;color:#4A1B0C;border:0.5px solid #F0997B}
+.answer-box.personal{background:#E1F5EE;color:#04342C;border:0.5px solid #5DCAA5}
+.answer-box .a-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;opacity:0.75}
+.verdict{margin-top:10px;padding:10px 12px;background:var(--color-background-secondary);border-radius:8px;font-size:12px;color:var(--color-text-secondary);line-height:1.6}
+.verdict strong{color:var(--color-text-primary)}
+.detailed-panel .week-section{margin-bottom:1.5rem}
+.detailed-panel .week-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.detailed-panel .week-header h3{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.day-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px}
+.day-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:10px}
+.day-card .day-num{font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:4px}
+.day-card .day-title{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px;line-height:1.3}
+.day-card .day-tasks{list-style:none;display:flex;flex-direction:column;gap:3px}
+.day-card .day-tasks li{font-size:11px;color:var(--color-text-secondary);line-height:1.4;padding-left:10px;position:relative}
+.day-card .day-tasks li::before{content:"·";position:absolute;left:2px;color:var(--color-text-secondary)}
+.resource-pill{display:inline-block;font-size:10px;padding:2px 7px;background:#E6F1FB;color:#185FA5;border-radius:8px;margin-top:5px;font-weight:500}
+.milestone-bar{padding:10px 14px;border-radius:8px;font-size:12px;font-weight:500;display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.milestone-bar i{font-size:16px}
+.m-teal{background:#E1F5EE;color:#085041}
+.m-blue{background:#E6F1FB;color:#0C447C}
+.m-amber{background:#FAEEDA;color:#633806}
+.m-pink{background:#FBEAF0;color:#72243E}
+.project-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px 14px;margin-bottom:8px}
+.project-card h4{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.project-card p{font-size:12px;color:var(--color-text-secondary);line-height:1.5;margin-bottom:6px}
+.tech-stack{display:flex;flex-wrap:wrap;gap:4px}
+.tech-tag{font-size:10px;padding:2px 7px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:6px;color:var(--color-text-secondary);font-weight:500}
+</style>
+
+<div class="app">
+<div class="header">
+  <h1>30-day AI engineer roadmap</h1>
+  <p>Side-by-side comparison: generic prompt output vs your context-aware personalized plan.</p>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('compare')">Side-by-side compare</button>
+  <button class="tab" onclick="switchTab('detailed')">Your full roadmap</button>
+  <button class="tab" onclick="switchTab('projects')">Projects + resources</button>
+  <button class="tab" onclick="switchTab('analysis')">Analysis</button>
+</div>
+
+<div id="compare" class="panel active">
+  <div class="compare-grid">
+    <div>
+      <div class="col-label">Generic prompt output</div>
+      <div class="roadmap-card">
+        <div class="card-header">
+          <h3>Generic 30-day ML roadmap</h3>
+          <p>Prompt: "Give me a 30-day ML roadmap"</p>
+        </div>
+        <div class="week-block">
+          <div class="week-title"><span class="week-badge wk1">Week 1</span> Python & math basics</div>
+          <ul class="task-list">
+            <li><span class="day-tag">Days 1–3</span>Review Python basics, numpy, pandas</li>
+            <li><span class="day-tag">Days 4–5</span>Linear algebra & calculus review</li>
+            <li><span class="day-tag">Days 6–7</span>Statistics fundamentals</li>
+          </ul>
+        </div>
+        <div class="week-block">
+          <div class="week-title"><span class="week-badge wk2">Week 2</span> ML algorithms</div>
+          <ul class="task-list">
+            <li><span class="day-tag">Days 8–10</span>Supervised learning (regression, classification)</li>
+            <li><span class="day-tag">Days 11–14</span>Unsupervised learning, clustering</li>
+          </ul>
+        </div>
+        <div class="week-block">
+          <div class="week-title"><span class="week-badge wk3">Week 3</span> Deep learning intro</div>
+          <ul class="task-list">
+            <li><span class="day-tag">Days 15–18</span>Neural networks with TensorFlow/Keras</li>
+            <li><span class="day-tag">Days 19–21</span>CNNs and RNNs basics</li>
+          </ul>
+        </div>
+        <div class="week-block">
+          <div class="week-title"><span class="week-badge wk4">Week 4</span> Projects</div>
+          <ul class="task-list">
+            <li><span class="day-tag">Days 22–26</span>Build a classification model</li>
+            <li><span class="day-tag">Days 27–30</span>Deploy with Flask or Streamlit</li>
+          </ul>
+        </div>
+        <div class="outcome-section">
+          <h4>Outcome</h4>
+          <div class="outcome-tags">
+            <span class="tag">Basic ML knowledge</span>
+            <span class="tag">1 project</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="col-label">Your personalized roadmap</div>
+      <div class="roadmap-card personalized">
+        <div class="card-header">
+          <h3>AI engineer internship roadmap</h3>
+          <p>Context: Final-year BS-IT · Python/ML · 4h/day · Projects+Videos</p>
+        </div>
+        <div class="week-block">
+          <div class="week-title"><span class="week-badge wk1">Week 1</span> LLM fundamentals + first app</div>
+          <ul class="task-list">
+            <li><span class="day-tag">Days 1–2</span>How LLMs work (Karpathy video) + OpenAI API setup</li>
+            <li><span class="day-tag">Days 3–4</span>Prompt engineering patterns (zero-shot, CoT, few-shot)</li>
+            <li><span class="day-tag">Days 5–7</span>Build: Smart resume reviewer app using Claude API</li>
+          </ul>
+        </div>
+        <div class="week-block">
+          <div class="week-title"><span class="week-badge wk2">Week 2</span> RAG pipeline (your ML skills → GenAI)</div>
+          <ul class="task-list">
+            <li><span class="day-tag">Days 8–9</span>Embeddings + vector databases (Qdrant/Chroma)</li>
+            <li><span class="day-tag">Days 10–11</span>LangChain basics: chains, retrievers, memory</li>
+            <li><span class="day-tag">Days 12–14</span>Build: RAG chatbot over your own documents (LinkedIn ready)</li>
+          </ul>
+        </div>
+        <div class="week-block">
+          <div class="week-title"><span class="week-badge wk3">Week 3</span> Fine-tuning + agents</div>
+          <ul class="task-list">
+            <li><span class="day-tag">Days 15–17</span>LoRA/QLoRA fine-tuning on HuggingFace (use your ML background)</span></li>
+            <li><span class="day-tag">Days 18–20</span>LangGraph agents: tool use, ReAct pattern</li>
+            <li><span class="day-tag">Days 21</span>Deploy fine-tuned model to HuggingFace Hub</li>
+          </ul>
+        </div>
+        <div class="week-block">
+          <div class="week-title"><span class="week-badge wk4">Week 4</span> Production + internship sprint</div>
+          <ul class="task-list">
+            <li><span class="day-tag">Days 22–24</span>FastAPI + Docker: wrap your RAG app as an API</li>
+            <li><span class="day-tag">Days 25–27</span>Build capstone: AI job-search assistant (your own use case)</li>
+            <li><span class="day-tag">Days 28–30</span>Polish GitHub, write LinkedIn posts (ABTalks Challenge content)</li>
+          </ul>
+        </div>
+        <div class="outcome-section">
+          <h4>Outcome</h4>
+          <div class="outcome-tags">
+            <span class="tag">3 portfolio projects</span>
+            <span class="tag">RAG + Agents + Fine-tuning</span>
+            <span class="tag">LinkedIn content</span>
+            <span class="tag">Internship-ready</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="detailed" class="panel detailed-panel">
+  <div class="week-section">
+    <div class="week-header">
+      <span class="week-badge wk1">Week 1</span>
+      <h3>LLM fundamentals — from ML basics to your first AI app</h3>
+    </div>
+    <div class="milestone-bar m-teal"><i class="ti ti-flag" aria-hidden="true"></i>Milestone: Working Claude/OpenAI API app live on GitHub</div>
+    <div class="day-grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="day-card">
+        <div class="day-num">Day 1</div>
+        <div class="day-title">How LLMs actually work</div>
+        <ul class="day-tasks">
+          <li>Watch Karpathy's "Intro to LLMs" (1h)</li>
+          <li>Read "Attention is All You Need" abstract + intro</li>
+          <li>Write 3 key takeaways in your own words</li>
+        </ul>
+        <span class="resource-pill">YouTube: Andrej Karpathy</span>
+      </div>
+      <div class="day-card">
+        <div class="day-num">Day 2</div>
+        <div class="day-title">API setup + first call</div>
+        <ul class="day-tasks">
+          <li>Setup: OpenAI + Anthropic API keys</li>
+          <li>Make first completion call in Python</li>
+          <li>Explore tokenization, temperature, max_tokens</li>
+        </ul>
+        <span class="resource-pill">docs.anthropic.com</span>
+      </div>
+      <div class="day-card">
+        <div class="day-num">Day 3–4</div>
+        <div class="day-title">Prompt engineering</div>
+        <ul class="day-tasks">
+          <li>Zero-shot, few-shot, chain-of-thought</li>
+          <li>Role prompting + system prompts</li>
+          <li>Build 5 reusable prompt templates</li>
+        </ul>
+        <span class="resource-pill">Anthropic Prompt Library</span>
+      </div>
+      <div class="day-card">
+        <div class="day-num">Day 5–7</div>
+        <div class="day-title">Project: Resume reviewer app</div>
+        <ul class="day-tasks">
+          <li>Input: paste resume text</li>
+          <li>Output: score + improvement suggestions</li>
+          <li>Streamlit UI, push to GitHub</li>
+          <li>Post on LinkedIn (ABTalks Day 1)</li>
+        </ul>
+        <span class="resource-pill">Streamlit docs</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="week-section">
+    <div class="week-header">
+      <span class="week-badge wk2">Week 2</span>
+      <h3>RAG pipelines — your data analysis skills meet GenAI</h3>
+    </div>
+    <div class="milestone-bar m-blue"><i class="ti ti-database" aria-hidden="true"></i>Milestone: RAG chatbot over custom docs, deployed + demo video</div>
+    <div class="day-grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="day-card">
+        <div class="day-num">Day 8–9</div>
+        <div class="day-title">Embeddings + vector DBs</div>
+        <ul class="day-tasks">
+          <li>What are embeddings? (visual intuition)</li>
+          <li>Setup ChromaDB locally</li>
+          <li>Embed + store 50 documents</li>
+        </ul>
+        <span class="resource-pill">ChromaDB docs</span>
+      </div>
+      <div class="day-card">
+        <div class="day-num">Day 10–11</div>
+        <div class="day-title">LangChain core</div>
+        <ul class="day-tasks">
+          <li>LangChain: chains, retrievers, memory</li>
+          <li>Build a basic Q&A chain</li>
+          <li>Add conversation history</li>
+        </ul>
+        <span class="resource-pill">LangChain docs</span>
+      </div>
+      <div class="day-card">
+        <div class="day-num">Day 12–13</div>
+        <div class="day-title">RAG architecture deep dive</div>
+        <ul class="day-tasks">
+          <li>Chunking strategies</li>
+          <li>Semantic search vs keyword</li>
+          <li>Hybrid retrieval overview</li>
+        </ul>
+        <span class="resource-pill">LlamaIndex blog</span>
+      </div>
+      <div class="day-card">
+        <div class="day-num">Day 14</div>
+        <div class="day-title">Project: Doc chatbot</div>
+        <ul class="day-tasks">
+          <li>RAG over your CV / project docs</li>
+          <li>Streamlit UI with chat history</li>
+          <li>Record 60s demo for LinkedIn</li>
+        </ul>
+        <span class="resource-pill">GitHub repo template</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="week-section">
+    <div class="week-header">
+      <span class="week-badge wk3">Week 3</span>
+      <h3>Fine-tuning + agents — your ML background shines here</h3>
+    </div>
+    <div class="milestone-bar m-amber"><i class="ti ti-robot" aria-hidden="true"></i>Milestone: Fine-tuned model on HuggingFace Hub + agent demo</div>
+    <div class="day-grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="day-card">
+        <div class="day-num">Day 15–16</div>
+        <div class="day-title">LoRA / QLoRA fine-tuning</div>
+        <ul class="day-tasks">
+          <li>Why fine-tune vs RAG? (decision tree)</li>
+          <li>Setup PEFT + bitsandbytes</li>
+          <li>Fine-tune a small model (Llama / Mistral)</li>
+        </ul>
+        <span class="resource-pill">HuggingFace PEFT</span>
+      </div>
+      <div class="day-card">
+        <div class="day-num">Day 17</div>
+        <div class="day-title">Push to HuggingFace Hub</div>
+        <ul class="day-tasks">
+          <li>Upload model + model card</li>
+          <li>Write clear README (portfolio piece)</li>
+          <li>Share on LinkedIn</li>
+        </ul>
+        <span class="resource-pill">huggingface.co/docs</span>
+      </div>
+      <div class="day-card">
+        <div class="day-num">Day 18–20</div>
+        <div class="day-title">LangGraph agents</div>
+        <ul class="day-tasks">
+          <li>ReAct pattern + tool calling</li>
+          <li>Build agent with web search + calculator tools</li>
+          <li>Add memory + state management</li>
+        </ul>
+        <span class="resource-pill">LangGraph docs</span>
+      </div>
+      <div class="day-card">
+        <div class="day-num">Day 21</div>
+        <div class="day-title">Buffer + review day</div>
+        <ul class="day-tasks">
+          <li>Fix any broken projects</li>
+          <li>Write week 3 LinkedIn post</li>
+          <li>Update GitHub READMEs</li>
+        </ul>
+        <span class="resource-pill">—</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="week-section">
+    <div class="week-header">
+      <span class="week-badge wk4">Week 4</span>
+      <h3>Production + internship sprint</h3>
+    </div>
+    <div class="milestone-bar m-pink"><i class="ti ti-briefcase" aria-hidden="true"></i>Milestone: 3 deployed projects, polished GitHub, internship applications sent</div>
+    <div class="day-grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="day-card">
+        <div class="day-num">Day 22–23</div>
+        <div class="day-title">FastAPI + Docker</div>
+        <ul class="day-tasks">
+          <li>Wrap RAG app as REST API</li>
+          <li>Dockerize + test locally</li>
+          <li>Deploy to Hugging Face Spaces or Railway</li>
+        </ul>
+        <span class="resource-pill">FastAPI docs</span>
+      </div>
+      <div class="day-card">
+        <div class="day-num">Day 24–26</div>
+        <div class="day-title">Capstone: AI job assistant</div>
+        <ul class="day-tasks">
+          <li>Scrapes job descriptions</li>
+          <li>Matches to your skills via RAG</li>
+          <li>Generates tailored cover letter</li>
+        </ul>
+        <span class="resource-pill">LangChain + OpenAI</span>
+      </div>
+      <div class="day-card">
+        <div class="day-num">Day 27–28</div>
+        <div class="day-title">Portfolio polish</div>
+        <ul class="day-tasks">
+          <li>Sync LinkedIn with CV</li>
+          <li>GitHub: pin 3 best repos, add demos</li>
+          <li>Write "what I built in 30 days" post</li>
+        </ul>
+        <span class="resource-pill">LinkedIn profile tips</span>
+      </div>
+      <div class="day-card">
+        <div class="day-num">Day 29–30</div>
+        <div class="day-title">Apply + cold outreach</div>
+        <ul class="day-tasks">
+          <li>Apply to 5 AI internships on LinkedIn/Rozee</li>
+          <li>DM 3 AI engineers on LinkedIn</li>
+          <li>Submit to ABTalks challenge final post</li>
+        </ul>
+        <span class="resource-pill">Rozee.pk / LinkedIn</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="projects" class="panel">
+  <h2 style="font-size:16px;font-weight:500;color:var(--color-text-primary);margin-bottom:1rem">3 portfolio projects</h2>
+  <div class="project-card">
+    <h4>Project 1 — Smart resume reviewer (Week 1)</h4>
+    <p>Uses Claude/GPT to score a resume against a job description. Returns a structured critique with improvement suggestions. Your first LLM app — simple but shows you can ship.</p>
+    <div class="tech-stack"><span class="tech-tag">Python</span><span class="tech-tag">Anthropic API</span><span class="tech-tag">Streamlit</span><span class="tech-tag">Prompt Engineering</span></div>
+  </div>
+  <div class="project-card">
+    <h4>Project 2 — RAG document chatbot (Week 2)</h4>
+    <p>Upload any PDF (notes, CV, research paper) and chat with it. Demonstrates end-to-end RAG: ingestion → embedding → retrieval → generation. Core AI Engineer skill.</p>
+    <div class="tech-stack"><span class="tech-tag">LangChain</span><span class="tech-tag">ChromaDB</span><span class="tech-tag">OpenAI Embeddings</span><span class="tech-tag">Streamlit</span><span class="tech-tag">FastAPI</span></div>
+  </div>
+  <div class="project-card">
+    <h4>Project 3 — AI job search assistant (Week 4, capstone)</h4>
+    <p>Paste a job description → agent scrapes similar roles, matches your resume skills via vector search, and drafts a tailored cover letter. Directly solves your own problem — interviewers love this.</p>
+    <div class="tech-stack"><span class="tech-tag">LangGraph</span><span class="tech-tag">RAG</span><span class="tech-tag">Tool Calling</span><span class="tech-tag">Docker</span><span class="tech-tag">FastAPI</span></div>
+  </div>
+
+  <h2 style="font-size:16px;font-weight:500;color:var(--color-text-primary);margin:1.5rem 0 1rem">Key resources</h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div class="project-card">
+      <h4>Videos</h4>
+      <ul class="day-tasks" style="margin-top:6px;list-style:none">
+        <li style="padding-left:12px;position:relative;font-size:12px;color:var(--color-text-secondary);line-height:1.8"><span style="position:absolute;left:0">▶</span>Andrej Karpathy — "Intro to LLMs" (YouTube)</li>
+        <li style="padding-left:12px;position:relative;font-size:12px;color:var(--color-text-secondary);line-height:1.8"><span style="position:absolute;left:0">▶</span>Sam Witteveen — LangChain series (YouTube)</li>
+        <li style="padding-left:12px;position:relative;font-size:12px;color:var(--color-text-secondary);line-height:1.8"><span style="position:absolute;left:0">▶</span>LangChain — official tutorials playlist</li>
+        <li style="padding-left:12px;position:relative;font-size:12px;color:var(--color-text-secondary);line-height:1.8"><span style="position:absolute;left:0">▶</span>HuggingFace — fine-tuning course (free)</li>
+      </ul>
+    </div>
+    <div class="project-card">
+      <h4>Docs + reading</h4>
+      <ul class="day-tasks" style="margin-top:6px;list-style:none">
+        <li style="padding-left:12px;position:relative;font-size:12px;color:var(--color-text-secondary);line-height:1.8"><span style="position:absolute;left:0">📄</span>docs.anthropic.com — prompt engineering guide</li>
+        <li style="padding-left:12px;position:relative;font-size:12px;color:var(--color-text-secondary);line-height:1.8"><span style="position:absolute;left:0">📄</span>LangChain docs — LCEL + agents</li>
+        <li style="padding-left:12px;position:relative;font-size:12px;color:var(--color-text-secondary);line-height:1.8"><span style="position:absolute;left:0">📄</span>HuggingFace PEFT docs</li>
+        <li style="padding-left:12px;position:relative;font-size:12px;color:var(--color-text-secondary);line-height:1.8"><span style="position:absolute;left:0">📄</span>"Attention Is All You Need" — Vaswani et al.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div id="analysis" class="panel analysis-section">
+  <h2>Prompt context analysis</h2>
+
+  <div class="question-card">
+    <div class="q">1. Which roadmap feels more personalized?</div>
+    <div class="answer-row">
+      <div class="answer-box generic"><div class="a-label">Generic</div>Starts from Python basics you already know. Covers ML algorithms you've studied. Treats you like a complete beginner. 4 weeks to reach where you already are.</div>
+      <div class="answer-box personal"><div class="a-label">Personalized</div>Skips Python, pandas, and ML basics entirely — you already have these. Jumps straight to the GenAI stack. Week 1 ships a working API app using your existing skills as a foundation.</div>
+    </div>
+    <div class="verdict"><strong>Winner: personalized.</strong> Context eliminated ~2 weeks of redundant content, letting the plan target your actual skill gap: LLMs → RAG → agents → production.</div>
+  </div>
+
+  <div class="question-card">
+    <div class="q">2. Which roadmap would you actually follow?</div>
+    <div class="answer-row">
+      <div class="answer-box generic"><div class="a-label">Generic</div>Day 1 is "review Python" — demoralizing when you already know it. No connection to your ABTalks Challenge. No mention of LinkedIn, portfolio, or internship applications. 1 generic project.</div>
+      <div class="answer-box personal"><div class="a-label">Personalized</div>Day 5 you're building a real app. Day 14 you're posting a demo to LinkedIn. Every project has a dual purpose: portfolio + ABTalks content. Applications happen on Day 29–30, not as an afterthought.</div>
+    </div>
+    <div class="verdict"><strong>Winner: personalized.</strong> Projects solve your real problem (job search assistant). LinkedIn posts are baked into the plan, not optional extras. Momentum builds from Day 1.</div>
+  </div>
+
+  <div class="question-card">
+    <div class="q">3. What role did context play in improving the result?</div>
+    <div class="answer-row">
+      <div class="answer-box generic"><div class="a-label">Without context</div>Roadmap assumes zero knowledge. Recommends TensorFlow/Keras (not the GenAI stack). No alignment with your goal (AI internship), timeline (final year), or content output (ABTalks).</div>
+      <div class="answer-box personal"><div class="a-label">With context</div>6 context signals reshaped every decision: current skills → skip basics; goal → target internship output; ABTalks → make projects = content; 4h/day → realistic pacing; projects+videos → right resource types.</div>
+    </div>
+    <div class="verdict"><strong>Context acted as a filter and an accelerator.</strong> It removed ~40% of generic content (redundant basics) and replaced it with targeted material. The output isn't "better" — it's a different roadmap entirely.</div>
+  </div>
+
+  <div style="margin-top:1rem;padding:14px;background:var(--color-background-secondary);border-radius:var(--border-radius-lg);font-size:12px;color:var(--color-text-secondary);line-height:1.7">
+    <strong style="color:var(--color-text-primary);display:block;margin-bottom:4px">The lesson for the ABTalks Challenge</strong>
+    A prompt without context is a coin flip. The 6 context signals you provided (skills, goal, time, level, style, deliverables) gave the model everything it needed to eliminate noise and maximize signal. This is the core principle of prompt engineering: <em>context is compression</em> — every relevant detail you add removes ambiguity and narrows the output space toward what you actually need.
+  </div>
+</div>
+</div>
+
+<script>
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById(name).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
