@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Supply Chain Optimizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0d14;
+    --panel:#111725;
+    --panel2:#151d2e;
+    --border:#232d42;
+    --text:#e8ecf5;
+    --muted:#8b96ab;
+    --amber:#f0a83c;
+    --amber-soft:rgba(240,168,60,0.15);
+    --teal:#2ec4b6;
+    --teal-soft:rgba(46,196,182,0.15);
+    --red:#e15b5b;
+    --green:#4fbf67;
+    --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(240,168,60,0.08), transparent 60%),
+      radial-gradient(1000px 500px at 100% 0%, rgba(46,196,182,0.08), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
+    min-height:100vh;
+  }
+  #app{max-width:1180px; margin:0 auto; padding:24px 20px 90px;}
+  .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:22px; flex-wrap:wrap; gap:10px;}
+  .brand{display:flex; align-items:center; gap:10px; font-weight:800; font-size:19px; letter-spacing:0.3px;}
+  .brand .dot{width:11px;height:11px;border-radius:50%; background:linear-gradient(135deg,var(--amber),var(--teal)); box-shadow:0 0 12px var(--amber);}
+  .nav-pills{display:flex; gap:6px; flex-wrap:wrap;}
+  .pill{font-size:11.5px; color:var(--muted); background:var(--panel2); border:1px solid var(--border); padding:6px 11px; border-radius:999px; transition:all .2s ease; cursor:default;}
+  .pill.active{color:#1a1103; background:linear-gradient(135deg,var(--amber),#d98d1f); border-color:transparent; font-weight:700;}
+  .pill.done{color:var(--teal); border-color:var(--teal);}
+  .card{background:linear-gradient(180deg, var(--panel), var(--panel2)); border:1px solid var(--border); border-radius:var(--radius); padding:26px; margin-bottom:20px; box-shadow:0 10px 30px rgba(0,0,0,0.25); transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease; animation:fadeIn .45s ease;}
+  .card:hover{border-color:#2c374d;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);}}
+  h1{font-size:30px; margin:0 0 10px;}
+  h2{font-size:22px; margin:0 0 8px;}
+  h3{font-size:16.5px; margin:0 0 10px;}
+  p{line-height:1.6;}
+  .muted{color:var(--muted);}
+  .small{font-size:12.5px;}
+  .lead{font-size:15.5px; color:#ccd4e5; line-height:1.7;}
+  .btn{background:linear-gradient(135deg, var(--amber), #d98d1f); color:#1a1103; border:none; padding:13px 22px; border-radius:12px; font-weight:700; font-size:14.5px; cursor:pointer; transition:transform .15s ease, box-shadow .15s ease, filter .15s ease; box-shadow:0 6px 18px rgba(240,168,60,0.25); font-family:inherit;}
+  .btn:hover{transform:translateY(-2px); filter:brightness(1.06); box-shadow:0 10px 24px rgba(240,168,60,0.35);}
+  .btn:active{transform:translateY(0);}
+  .btn:disabled{opacity:0.35; cursor:not-allowed; transform:none; box-shadow:none;}
+  .btn.secondary{background:var(--panel2); color:var(--text); border:1px solid var(--border); box-shadow:none;}
+  .btn.secondary:hover{border-color:var(--teal); box-shadow:0 6px 18px rgba(46,196,182,0.2);}
+  .btn.teal{background:linear-gradient(135deg, var(--teal), #1c9186); color:#04211e; box-shadow:0 6px 18px rgba(46,196,182,0.25);}
+  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px;}
+  .grid-4{display:grid; grid-template-columns:repeat(4,1fr); gap:14px;}
+  @media(max-width:860px){.grid-2{grid-template-columns:1fr;} .grid-3{grid-template-columns:1fr 1fr;} .grid-4{grid-template-columns:1fr 1fr;}}
+  @media(max-width:520px){.grid-3{grid-template-columns:1fr;} .grid-4{grid-template-columns:1fr;}}
+  .option{background:var(--panel2); border:1px solid var(--border); border-radius:14px; padding:18px; cursor:pointer; transition:all .2s ease; position:relative;}
+  .option:hover{border-color:var(--amber); transform:translateY(-3px); box-shadow:0 10px 22px rgba(240,168,60,0.15);}
+  .option.selected{border-color:var(--teal); background:linear-gradient(180deg, rgba(46,196,182,0.08), var(--panel2)); box-shadow:0 0 0 1px var(--teal) inset, 0 10px 22px rgba(46,196,182,0.2);}
+  .option h4{margin:0 0 6px; font-size:15.5px;}
+  .option p{margin:0; font-size:13px; color:var(--muted); line-height:1.5;}
+  .badge{display:inline-block; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:999px; margin-left:8px; vertical-align:middle;}
+  .badge.teal{background:var(--teal-soft); color:var(--teal);}
+  .badge.amber{background:var(--amber-soft); color:var(--amber);}
+  .badge.red{background:rgba(225,91,91,0.15); color:var(--red);}
+  .badge.green{background:rgba(79,191,103,0.15); color:var(--green);}
+  .metrics-bar{display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:22px;}
+  @media(max-width:860px){.metrics-bar{grid-template-columns:1fr 1fr;}}
+  .metric{background:var(--panel2); border:1px solid var(--border); border-radius:14px; padding:14px 16px;}
+  .metric .label{font-size:11.5px; color:var(--muted); display:flex; justify-content:space-between; margin-bottom:8px;}
+  .metric .value{font-weight:700; font-size:14.5px;}
+  .bar-track{width:100%; height:8px; background:#232b3d; border-radius:999px; overflow:hidden;}
+  .bar-fill{height:100%; border-radius:999px; transition:width .8s cubic-bezier(.2,.8,.2,1); width:0%;}
+  .explain-box{background:var(--amber-soft); border:1px solid rgba(240,168,60,0.35); border-radius:12px; padding:14px 16px; margin-top:14px; font-size:13.5px; line-height:1.6; color:#f3dcb5; animation:fadeIn .35s ease;}
+  .concept-box{background:var(--teal-soft); border:1px solid rgba(46,196,182,0.35); border-radius:12px; padding:14px 16px; margin-bottom:18px; font-size:13.5px; line-height:1.6; color:#c7f3ee;}
+  .footer-actions{display:flex; justify-content:space-between; align-items:center; margin-top:22px; flex-wrap:wrap; gap:10px;}
+  .tag-row{display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 0;}
+  .tag-row span{background:var(--panel2); border:1px solid var(--border); padding:6px 12px; border-radius:999px; font-size:12px; color:var(--muted);}
+  .score-ring{width:180px; height:180px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 10px; position:relative; background:conic-gradient(var(--ringcolor,#2ec4b6) calc(var(--score,0)*1%), #232b3d 0); transition:background 1s ease;}
+  .score-ring::before{content:""; position:absolute; width:145px; height:145px; border-radius:50%; background:var(--panel);}
+  .score-ring .score-num{position:relative; font-size:42px; font-weight:800;}
+  .score-ring .score-sub{position:absolute; bottom:38px; font-size:12px; color:var(--muted);}
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  @media(max-width:860px){.two-col{grid-template-columns:1fr;}}
+  .list-item{display:flex; gap:10px; align-items:flex-start; margin-bottom:10px; font-size:14px; line-height:1.5;}
+  .list-item .icon{flex-shrink:0; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:800;}
+  .icon.good{background:rgba(79,191,103,0.18); color:var(--green);}
+  .icon.bad{background:rgba(225,91,91,0.18); color:var(--red);}
+  .icon.warn{background:var(--amber-soft); color:var(--amber);}
+  .progress-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px;}
+  .dots{display:flex; gap:6px;}
+  .step-dot{width:8px; height:8px; border-radius:50%; background:#2a3348; transition:all .3s ease;}
+  .step-dot.active{background:var(--amber); width:22px; border-radius:4px;}
+  .step-dot.done{background:var(--teal);}
+  .summary-table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  .summary-table td{padding:9px 4px; border-bottom:1px solid var(--border);}
+  .summary-table td:first-child{color:var(--muted);}
+  .summary-table td:last-child{text-align:right; font-weight:600;}
+  canvas{width:100%; display:block;}
+  .chart-wrap{background:var(--panel2); border:1px solid var(--border); border-radius:14px; padding:16px;}
+  .slider-row{margin:16px 0;}
+  .slider-row label{display:flex; justify-content:space-between; font-size:13.5px; color:var(--muted); margin-bottom:8px;}
+  input[type=range]{width:100%; accent-color:var(--amber); cursor:pointer;}
+  .kpi{background:var(--panel2); border:1px solid var(--border); border-radius:14px; padding:16px; text-align:center;}
+  .kpi .num{font-size:26px; font-weight:800;}
+  .kpi .lab{font-size:11.5px; color:var(--muted); margin-top:4px;}
+  .risk-row{display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border);}
+  .risk-row:last-child{border-bottom:none;}
+  .risk-dot{width:10px;height:10px;border-radius:50%; flex-shrink:0;}
+  .fade-in{animation:fadeIn .4s ease;}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+(function(){
+"use strict";
+
+var STAGES = ["welcome","profile","dashboard","inventory","warehouse","supplier","transport","risk","costopt","ai","final"];
+var STAGE_LABELS = {
+  welcome:"Welcome", profile:"Company", dashboard:"Overview", inventory:"Inventory",
+  warehouse:"Warehouse", supplier:"Suppliers", transport:"Transport", risk:"Risk",
+  costopt:"Cost", ai:"AI Insights", final:"Final Report"
+};
+
+var state = {
+  stageIndex: 0,
+  company: null,
+  metrics: { cost:50, speed:50, risk:50, satisfaction:50, sustainability:50 },
+  choices: {},
+  costSliders: { laborOpt:50, packagingOpt:50, procurementOpt:50 }
+};
+
+function clamp(n){ return Math.max(0, Math.min(100, n)); }
+function randFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+var INDUSTRIES = [
+  { name:"Consumer Electronics", products:["wireless earbuds","smart home hubs","portable chargers"] },
+  { name:"Fashion & Apparel", products:["sneakers","denim jackets","activewear sets"] },
+  { name:"Packaged Foods", products:["snack bars","instant noodles","cold-brew coffee cans"] },
+  { name:"Furniture", products:["flat-pack desks","ergonomic chairs","modular shelving"] },
+  { name:"Pharmaceuticals", products:["pain relief tablets","vitamin supplements","cold & flu syrup"] },
+  { name:"Automotive Parts", products:["brake pads","car batteries","LED headlight kits"] },
+  { name:"Toys & Games", products:["building blocks","board games","remote-control cars"] },
+  { name:"Beauty & Personal Care", products:["moisturizing lotions","shampoo bars","sunscreen sticks"] }
+];
+var COUNTRY_SETS = [
+  ["Pakistan","UAE","Germany"], ["USA","Canada","Mexico"], ["Germany","France","Italy"],
+  ["UK","Ireland","Netherlands"], ["China","Vietnam","Indonesia"], ["India","Bangladesh","Sri Lanka"],
+  ["Brazil","Argentina","Chile"], ["UAE","Saudi Arabia","Egypt"]
+];
+var DEMAND_LEVELS = [
+  { level:"Low & Steady", desc:"Demand is predictable and grows slowly. Easier to plan, less pressure on speed." },
+  { level:"Moderate & Seasonal", desc:"Demand rises and falls with seasons or holidays, requiring flexible planning." },
+  { level:"High & Volatile", desc:"Demand is large but unpredictable, often spiking suddenly. Hard to plan for." }
+];
+
+function generateCompany(){
+  var industry = randFrom(INDUSTRIES);
+  var countries = randFrom(COUNTRY_SETS);
+  var demand = randFrom(DEMAND_LEVELS);
+  var names = ["Nova","Orbit","Vertex","Meridian","Atlas","Zenith","Harbor","Crestline","Solace","Pioneer"];
+  var suffix = ["Goods","Supply Co.","Industries","Group","& Sons","Collective","Holdings"];
+  var revenue = 5 + Math.floor(Math.random()*95);
+  var employees = 50 + Math.floor(Math.random()*2000);
+  return {
+    name: randFrom(names) + " " + randFrom(suffix),
+    industry: industry.name,
+    products: industry.products,
+    countries: countries,
+    demand: demand,
+    revenue: revenue,
+    employees: employees
+  };
+}
+
+function applyDelta(delta){
+  Object.keys(delta).forEach(function(k){
+    state.metrics[k] = clamp(state.metrics[k] + delta[k]);
+  });
+}
+
+function metricLabel(key){
+  var map = { cost:"Cost Efficiency", speed:"Delivery Speed", risk:"Risk Protection", satisfaction:"Customer Satisfaction", sustainability:"Sustainability" };
+  return map[key];
+}
+function metricColor(value){
+  if(value>=65) return "#4fbf67";
+  if(value>=40) return "#f0a83c";
+  return "#e15b5b";
+}
+
+var STEPS = [
+  {
+    key:"suppliers", stage:"supplier",
+    title:"Supplier Optimization",
+    concept:"A supplier is the business that provides raw materials or parts you need to make your product. Deciding how many suppliers to rely on shapes how safe -- but also how expensive -- your operations will be.",
+    options:[
+      { label:"Single Supplier", description:"Rely on just one supplier. Lower cost and simpler to manage, but if that supplier has a problem, production can stop entirely.",
+        delta:{cost:12,speed:4,risk:-18,satisfaction:0,sustainability:2},
+        explain:"One relationship is cheaper to negotiate and coordinate, so Cost improved. But putting all your eggs in one basket is risky -- if that supplier fails, everything stops, so Risk dropped significantly." },
+      { label:"Multiple Suppliers", description:"Split orders across two or more suppliers in different regions. Costs more to manage, but resilient if one supplier fails.",
+        delta:{cost:-10,speed:-2,risk:16,satisfaction:2,sustainability:-3},
+        explain:"Coordinating multiple suppliers takes more admin work and usually higher prices, so Cost dropped. But your business becomes far more resilient to shocks, so Risk protection improved a lot." }
+    ]
+  },
+  {
+    key:"factory", stage:"supplier",
+    title:"Factory Location Strategy",
+    concept:"A factory is where raw materials are turned into finished products. Where you place it affects labor cost, distance to customers, and reaction speed.",
+    options:[
+      { label:"Near Suppliers (Offshore)", description:"Build close to raw materials, often overseas. Cheaper labor and materials, but longer shipping to customers.",
+        delta:{cost:14,speed:-12,risk:-4,satisfaction:-6,sustainability:-8},
+        explain:"Cheap materials and labor lower production Cost. But goods travel further to customers, hurting Delivery Speed and Satisfaction, and long-distance shipping hurts Sustainability." },
+      { label:"Near Customers (Nearshore)", description:"Build closer to markets served. Higher labor cost, but much faster delivery and reaction time.",
+        delta:{cost:-12,speed:14,risk:4,satisfaction:8,sustainability:4},
+        explain:"Local labor costs more, lowering Cost. But products reach customers much faster, boosting Delivery Speed and Satisfaction, and shorter distances slightly help Sustainability." },
+      { label:"Balanced Regional Hub", description:"Central location balancing distance to suppliers and customers -- a common real-world compromise.",
+        delta:{cost:2,speed:2,risk:6,satisfaction:2,sustainability:2},
+        explain:"A regional hub doesn't maximize any single benefit, but avoids major weaknesses -- all metrics moved slightly positive." }
+    ]
+  },
+  {
+    key:"warehouse", stage:"warehouse",
+    title:"Warehouse Management Strategy",
+    concept:"A warehouse is where finished products are stored before shipping. Deciding how many warehouses to use, and where, affects delivery speed and storage cost.",
+    options:[
+      { label:"Centralized Warehouse", description:"One large warehouse. Cheaper and easier to manage stock, but distant customers wait longer.",
+        delta:{cost:10,speed:-8,risk:-6,satisfaction:-4,sustainability:2},
+        explain:"One big warehouse benefits from economies of scale, improving Cost. But it's farther from many customers, hurting Speed and Satisfaction, and is a single point of failure, lowering Risk protection." },
+      { label:"Distributed Warehouses", description:"Several smaller warehouses spread across regions. Costs more, but closer to customers and more resilient.",
+        delta:{cost:-10,speed:12,risk:10,satisfaction:8,sustainability:-4},
+        explain:"Running multiple facilities raises cost. But goods sit closer to customers, boosting Speed and Satisfaction, and spreading operations reduces Risk. More facilities and trips slightly hurt Sustainability." },
+      { label:"Hybrid Regional Hubs", description:"A few mid-sized warehouses in key regions -- a middle ground many retailers use.",
+        delta:{cost:0,speed:5,risk:4,satisfaction:4,sustainability:0},
+        explain:"A hybrid approach captures some speed benefits without full distributed cost, giving modest balanced improvements." }
+    ]
+  },
+  {
+    key:"transport", stage:"transport",
+    title:"Transportation Decisions",
+    concept:"Transportation is how goods physically move between suppliers, factories, warehouses, and customers. Each method trades off cost, speed, reliability, and environmental impact.",
+    options:[
+      { label:"Sea Freight", description:"Cheapest way to move large volumes, but voyages take weeks and are affected by port delays and weather.",
+        delta:{cost:16,speed:-16,risk:-4,satisfaction:-6,sustainability:8},
+        explain:"Sea freight is cheapest for large volume, greatly helping Cost. But it's slow, hurting Speed and Satisfaction, and port delays add Risk. Lower emissions per unit helps Sustainability." },
+      { label:"Air Freight", description:"Fastest option worldwide, but the most expensive and highest environmental footprint.",
+        delta:{cost:-18,speed:18,risk:4,satisfaction:10,sustainability:-12},
+        explain:"Air freight is costly to operate, dropping Cost sharply. Speed and Satisfaction rose a lot. More reliable scheduling helps Risk slightly, but heavy fuel use hurts Sustainability." },
+      { label:"Rail Transport", description:"A solid middle ground for overland routes -- reasonably fast, moderately priced, fairly reliable.",
+        delta:{cost:4,speed:4,risk:2,satisfaction:2,sustainability:6},
+        explain:"Rail offers a balanced profile -- not as cheap as sea, not as fast as air, but efficient and fairly clean, giving small gains across most metrics." },
+      { label:"Road Transport", description:"Flexible door-to-door delivery, great for last-mile, but costs and delays add up over long distances.",
+        delta:{cost:-2,speed:6,risk:-2,satisfaction:4,sustainability:-4},
+        explain:"Trucks are flexible, giving a small Speed and Satisfaction boost. But fuel and driver costs slightly hurt Cost, traffic creates modest Risk, and emissions hurt Sustainability a bit." }
+    ]
+  },
+  {
+    key:"inventory", stage:"inventory",
+    title:"Inventory Analysis Strategy",
+    concept:"Inventory is the stock kept on hand before it's needed. More inventory protects against running out but ties up money; less saves money but risks stockouts.",
+    options:[
+      { label:"Low Inventory (Just-in-Time)", description:"Minimal stock, ordered only when needed. Saves storage cost but leaves little cushion.",
+        delta:{cost:14,speed:-4,risk:-14,satisfaction:-4,sustainability:4},
+        explain:"Less stock means less money tied up, improving Cost and slightly helping Sustainability. But there's little buffer if a supplier is late or demand spikes, dropping Risk and Satisfaction." },
+      { label:"Balanced Inventory", description:"Moderate buffer -- enough to absorb small disruptions without excess cost. The most common real-world strategy.",
+        delta:{cost:2,speed:2,risk:6,satisfaction:4,sustainability:0},
+        explain:"A balanced buffer smooths small bumps in supply or demand without heavy storage costs, giving modest well-rounded improvements." },
+      { label:"High Inventory (Safety Stock)", description:"Large reserves at all times. Strong protection against shortages, but ties up cash and space.",
+        delta:{cost:-14,speed:6,risk:16,satisfaction:6,sustainability:-8},
+        explain:"Large reserves cost a lot to store, hurting Cost. But you're well protected against shortages, strongly improving Risk, Speed reliability, and Satisfaction. Excess stock can waste, hurting Sustainability." }
+    ]
+  }
+];
+
+function stepDefFor(stage){
+  return STEPS.filter(function(s){ return s.stage===stage; });
+}
+
+function computeOverallScore(){
+  var weights = { cost:0.22, speed:0.2, risk:0.24, satisfaction:0.2, sustainability:0.14 };
+  var total = 0;
+  Object.keys(weights).forEach(function(k){ total += state.metrics[k]*weights[k]; });
+  return Math.round(clamp(total));
+}
+
+function goToStage(stageKey){
+  state.stageIndex = STAGES.indexOf(stageKey);
+  render();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+function nextStage(){
+  if(state.stageIndex+1 < STAGES.length){
+    state.stageIndex += 1;
+    render();
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+}
+function prevStage(){
+  if(state.stageIndex>0){
+    state.stageIndex -= 1;
+    render();
+    window.scrollTo({top:0, behavior:"smooth"});
+  }
+}
+
+function chooseOption(stepKey, opt){
+  var prevChoice = state.choices[stepKey];
+  if(prevChoice && prevChoice.label===opt.label) return;
+  if(prevChoice){
+    Object.keys(prevChoice.delta).forEach(function(k){
+      state.metrics[k] = clamp(state.metrics[k] - prevChoice.delta[k]);
+    });
+  }
+  applyDelta(opt.delta);
+  state.choices[stepKey] = opt;
+  render();
+}
+
+function replay(){
+  state.stageIndex = 0;
+  state.company = null;
+  state.metrics = { cost:50, speed:50, risk:50, satisfaction:50, sustainability:50 };
+  state.choices = {};
+  state.costSliders = { laborOpt:50, packagingOpt:50, procurementOpt:50 };
+  render();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+/* ---------- RENDER HELPERS ---------- */
+function el(tag, attrs, children){
+  var e = document.createElement(tag);
+  attrs = attrs || {};
+  Object.keys(attrs).forEach(function(k){
+    if(k==="class") e.className = attrs[k];
+    else if(k==="html") e.innerHTML = attrs[k];
+    else if(k.indexOf("on")===0 && typeof attrs[k]==="function") e.addEventListener(k.slice(2), attrs[k]);
+    else e.setAttribute(k, attrs[k]);
+  });
+  (children||[]).forEach(function(c){
+    if(typeof c === "string") e.appendChild(document.createTextNode(c));
+    else if(c) e.appendChild(c);
+  });
+  return e;
+}
+
+function metricsBarNode(){
+  var wrap = el("div", {class:"metrics-bar"});
+  ["cost","speed","risk","satisfaction","sustainability"].forEach(function(key){
+    var val = state.metrics[key];
+    var color = metricColor(val);
+    var m = el("div", {class:"metric"}, [
+      el("div", {class:"label"}, [
+        el("span", {}, [metricLabel(key)]),
+        el("span", {class:"value", style:"color:"+color}, [String(val)])
+      ]),
+      el("div", {class:"bar-track"}, [
+        el("div", {class:"bar-fill"})
+      ])
+    ]);
+    wrap.appendChild(m);
+    var fill = m.querySelector(".bar-fill");
+    fill.style.background = color;
+    setTimeout(function(){ fill.style.width = val+"%"; }, 30);
+  });
+  return wrap;
+}
+
+function navPills(){
+  var wrap = el("div", {class:"nav-pills"});
+  STAGES.forEach(function(s, i){
+    if(s==="welcome") return;
+    var cls = "pill";
+    if(i===state.stageIndex) cls += " active";
+    else if(i<state.stageIndex) cls += " done";
+    wrap.appendChild(el("span", {class:cls}, [STAGE_LABELS[s]]));
+  });
+  return wrap;
+}
+
+function topBar(){
+  var bar = el("div", {class:"topbar"}, [
+    el("div", {class:"brand"}, [ el("span",{class:"dot"},[]), "Supply Chain Optimizer" ]),
+    navPills()
+  ]);
+  return bar;
+}
+
+/* ---------- CANVAS CHART HELPERS ---------- */
+function drawBarChart(canvas, labels, values, colors, maxVal){
+  var ctx = canvas.getContext("2d");
+  var dpr = window.devicePixelRatio || 1;
+  var w = canvas.clientWidth, h = canvas.clientHeight;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+  var padding = 30;
+  var chartW = w - padding*2;
+  var chartH = h - padding*2;
+  var barW = chartW / values.length * 0.55;
+  var gap = chartW / values.length;
+  ctx.strokeStyle = "#232b3d";
+  ctx.lineWidth = 1;
+  for(var g=0; g<=4; g++){
+    var y = padding + chartH - (chartH*g/4);
+    ctx.beginPath();
+    ctx.moveTo(padding,y); ctx.lineTo(w-padding,y); ctx.stroke();
+  }
+  values.forEach(function(v, i){
+    var barH = (v/maxVal)*chartH;
+    var x = padding + gap*i + (gap-barW)/2;
+    var y = padding + chartH - barH;
+    var grad = ctx.createLinearGradient(0,y,0,y+barH);
+    grad.addColorStop(0, colors[i]);
+    grad.addColorStop(1, colors[i]+"55");
+    ctx.fillStyle = grad;
+    roundRect(ctx, x, y, barW, barH, 6);
+    ctx.fill();
+    ctx.fillStyle = "#8b96ab";
+    ctx.font = "11px Inter, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(labels[i], x+barW/2, h-8);
+    ctx.fillStyle = "#e8ecf5";
+    ctx.font = "bold 12px Inter, sans-serif";
+    ctx.fillText(String(v), x+barW/2, y-8);
+  });
+}
+function roundRect(ctx,x,y,w,h,r){
+  if(h<=0) h=0.001;
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+}
+function drawLineChart(canvas, values, color){
+  var ctx = canvas.getContext("2d");
+  var dpr = window.devicePixelRatio || 1;
+  var w = canvas.clientWidth, h = canvas.clientHeight;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+  var padding = 20;
+  var chartW = w - padding*2;
+  var chartH = h - padding*2;
+  var maxV = Math.max.apply(null, values);
+  var minV = Math.min.apply(null, values);
+  var range = (maxV-minV)||1;
+  ctx.strokeStyle = "#232b3d";
+  for(var g=0; g<=3; g++){
+    var y = padding + chartH*g/3;
+    ctx.beginPath(); ctx.moveTo(padding,y); ctx.lineTo(w-padding,y); ctx.stroke();
+  }
+  ctx.beginPath();
+  values.forEach(function(v,i){
+    var x = padding + (chartW*i/(values.length-1));
+    var y = padding + chartH - ((v-minV)/range)*chartH;
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+  var grad = ctx.createLinearGradient(0,padding,0,padding+chartH);
+  grad.addColorStop(0,color+"55");
+  grad.addColorStop(1,color+"00");
+  ctx.lineTo(w-padding, padding+chartH);
+  ctx.lineTo(padding, padding+chartH);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+  values.forEach(function(v,i){
+    var x = padding + (chartW*i/(values.length-1));
+    var y = padding + chartH - ((v-minV)/range)*chartH;
+    ctx.beginPath();
+    ctx.arc(x,y,3.5,0,Math.PI*2);
+    ctx.fillStyle = color;
+    ctx.fill();
+  });
+}
+function drawDonut(canvas, segments){
+  var ctx = canvas.getContext("2d");
+  var dpr = window.devicePixelRatio || 1;
+  var w = canvas.clientWidth, h = canvas.clientHeight;
+  canvas.width = w*dpr; canvas.height = h*dpr;
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,w,h);
+  var cx = w/2, cy = h/2;
+  var radius = Math.min(w,h)/2 - 10;
+  var total = segments.reduce(function(s,seg){return s+seg.value;},0);
+  var start = -Math.PI/2;
+  segments.forEach(function(seg){
+    var angle = (seg.value/total) * Math.PI*2;
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,radius,start,start+angle);
+    ctx.closePath();
+    ctx.fillStyle = seg.color;
+    ctx.fill();
+    start += angle;
+  });
+  ctx.beginPath();
+  ctx.arc(cx,cy,radius*0.6,0,Math.PI*2);
+  ctx.fillStyle = "#151d2e";
+  ctx.fill();
+}
+
+/* ---------- STAGE RENDERERS ---------- */
+
+function renderWelcome(container){
+  var card = el("div", {class:"card fade-in"}, [
+    el("h1",{},["📦 Supply Chain Optimizer"]),
+    el("p",{class:"lead"},["A supply chain is the entire journey a product takes before it reaches a customer -- from raw materials, to factories that make the product, to warehouses that store it, to trucks, trains, ships, or planes that transport it, and finally to the customer's door."]),
+    el("p",{class:"lead"},["Every decision along this journey involves a trade-off. Cheaper often means slower. Faster often means more expensive or worse for the environment. Safer often costs more upfront. There is rarely one correct answer -- only choices that fit a business's goals and risk tolerance."]),
+    el("p",{class:"lead"},["In this simulation you will run a randomly generated company through eleven stages: Company Profile, Dashboard Overview, Inventory Analysis, Warehouse Management, Supplier Optimization, Transportation Decisions, Risk Analysis, Cost Optimization, AI Recommendations, and a Final Performance Dashboard. Every choice updates five live metrics: Cost, Delivery Speed, Risk, Customer Satisfaction, and Sustainability."]),
+    el("div",{class:"footer-actions"},[
+      el("span",{class:"muted small"},["No signup, no data saved -- fully offline."]),
+      el("button",{class:"btn", onclick:function(){
+        state.company = generateCompany();
+        nextStage();
+      }},["Start Simulation →"])
+    ])
+  ]);
+  container.appendChild(card);
+}
+
+function renderProfile(container){
+  var c = state.company;
+  var card = el("div", {class:"card fade-in"}, [
+    el("h2",{},["📋 Company Profile"]),
+    el("p",{class:"lead"},["You've just been hired as the new Supply Chain Manager. Here is what you're working with:"]),
+    el("h1",{style:"font-size:26px;margin-top:18px;"},[c.name]),
+    el("p",{class:"muted", style:"margin-top:-4px;"},[c.industry + " company"]),
+    el("div",{class:"concept-box", style:"margin-top:18px;"},[
+      el("strong",{},["Products: "]), c.products.join(", "), el("br",{},[]),
+      el("strong",{},["Markets served: "]), c.countries.join(", "), el("br",{},[]),
+      el("strong",{},["Demand pattern: "]), c.demand.level + " -- " + c.demand.desc
+    ]),
+    (function(){
+      var g = el("div",{class:"grid-3", style:"margin-top:18px;"},[]);
+      g.appendChild(el("div",{class:"kpi"},[el("div",{class:"num"},["$"+c.revenue+"M"]), el("div",{class:"lab"},["Annual Revenue"])]));
+      g.appendChild(el("div",{class:"kpi"},[el("div",{class:"num"},[String(c.employees)]), el("div",{class:"lab"},["Employees"])]));
+      g.appendChild(el("div",{class:"kpi"},[el("div",{class:"num"},[String(c.countries.length)]), el("div",{class:"lab"},["Markets Served"])]));
+      return g;
+    })(),
+    el("div",{class:"tag-row"},[
+      el("span",{},["🏭 " + c.industry]),
+      el("span",{},["🌍 " + c.countries.length + " markets"]),
+      el("span",{},["📈 " + c.demand.level])
+    ]),
+    el("div",{class:"footer-actions"},[
+      el("span",{class:"muted small"},["Next: Supply Chain Dashboard Overview"]),
+      el("button",{class:"btn", onclick:nextStage},["Continue →"])
+    ])
+  ]);
+  container.appendChild(card);
+}
+
+function renderDashboard(container){
+  container.appendChild(metricsBarNode());
+  var card = el("div",{class:"card fade-in"},[
+    el("h2",{},["📊 Supply Chain Dashboard Overview"]),
+    el("p",{class:"lead"},["This is your control tower. Every metric above reflects the current health of your supply chain design. As you move through Inventory, Warehouse, Supplier, and Transportation decisions, these numbers will shift in real time, and you'll see exactly why."]),
+    el("div",{class:"chart-wrap"},[
+      el("h3",{},["Current Metric Snapshot"]),
+      el("canvas",{id:"dashChart", height:"220"},[])
+    ]),
+    el("div",{class:"footer-actions"},[
+      el("button",{class:"btn secondary", onclick:prevStage},["← Back"]),
+      el("button",{class:"btn", onclick:nextStage},["Proceed to Inventory Analysis →"])
+    ])
+  ]);
+  container.appendChild(card);
+  setTimeout(function(){
+    var canvas = document.getElementById("dashChart");
+    if(canvas){
+      var order = ["cost","speed","risk","satisfaction","sustainability"];
+      var labels = order.map(function(k){return metricLabel(k).split(" ")[0];});
+      var values = order.map(function(k){return state.metrics[k];});
+      var colors = values.map(metricColor);
+      drawBarChart(canvas, labels, values, colors, 100);
+    }
+  }, 50);
+}
+
+function renderDecisionStage(container, stageKey, headerEmoji, headerTitle, headerDesc){
+  container.appendChild(metricsBarNode());
+  var steps = stepDefFor(stageKey);
+  steps.forEach(function(step){
+    var choice = state.choices[step.key];
+    var optionsWrap = el("div",{class: step.options.length>2 ? "grid-3":"grid-2"},[]);
+    step.options.forEach(function(opt){
+      var selected = choice && choice.label===opt.label;
+      var optNode = el("div",{class:"option"+(selected?" selected":""), onclick:function(){ chooseOption(step.key, opt); }},[
+        el("h4",{},[opt.label + (selected ? "":"")]),
+        el("p",{},[opt.description])
+      ]);
+      if(selected){
+        optNode.querySelector("h4").appendChild(el("span",{class:"badge teal"},["Selected"]));
+      }
+      optionsWrap.appendChild(optNode);
+    });
+    var stepCard = el("div",{class:"card fade-in"},[
+      el("h2",{},[step.title]),
+      el("div",{class:"concept-box"},[
+        el("strong",{},["What this means & why it matters: "]), step.concept
+      ]),
+      optionsWrap
+    ]);
+    if(choice){
+      stepCard.appendChild(el("div",{class:"explain-box"},[
+        el("strong",{},["Trade-off explained: "]), choice.explain
+      ]));
+    }
+    container.appendChild(stepCard);
+  });
+
+  var allChosen = steps.every(function(s){ return !!state.choices[s.key]; });
+  var navCard = el("div",{class:"card"},[
+    el("h3",{},[headerEmoji + " " + headerTitle]),
+    el("p",{class:"muted small"},[headerDesc]),
+    el("div",{class:"footer-actions"},[
+      el("button",{class:"btn secondary", onclick:prevStage},["← Back"]),
+      el("button",{class:"btn", disabled: allChosen ? undefined : true, onclick: function(){ if(allChosen) nextStage(); }},[allChosen ? "Continue →" : "Select all options above to continue"])
+    ])
+  ]);
+  container.appendChild(navCard);
+}
+
+function renderRisk(container){
+  container.appendChild(metricsBarNode());
+  var riskScore = state.metrics.risk;
+  var riskLevel = riskScore>=65 ? "Low Risk" : riskScore>=40 ? "Moderate Risk" : "High Risk";
+  var riskColor = riskScore>=65 ? "#4fbf67" : riskScore>=40 ? "#f0a83c" : "#e15b5b";
+
+  var factors = [
+    { name:"Supplier Concentration", value: state.choices.suppliers && state.choices.suppliers.label==="Single Supplier" ? 75 : 30, note:"Reliance on a limited supplier base." },
+    { name:"Geographic Exposure", value: state.choices.factory && state.choices.factory.label==="Near Suppliers (Offshore)" ? 65 : 35, note:"Concentration of operations in one region." },
+    { name:"Inventory Buffer", value: state.choices.inventory && state.choices.inventory.label==="Low Inventory (Just-in-Time)" ? 70 : 30, note:"Cushion available against demand or supply shocks." },
+    { name:"Transport Reliability", value: state.choices.transport && (state.choices.transport.label==="Sea Freight") ? 55 : 30, note:"Exposure to delays from weather, ports, or congestion." },
+    { name:"Demand Volatility", value: state.company.demand.level==="High & Volatile" ? 70 : state.company.demand.level==="Moderate & Seasonal" ? 45 : 20, note:"How unpredictable customer demand is for this company." }
+  ];
+
+  var card = el("div",{class:"card fade-in"},[
+    el("h2",{},["🚨 Risk Analysis"]),
+    el("p",{class:"lead"},["Risk in a supply chain means the chance that something disrupts your ability to make or deliver your product -- a late shipment, a supplier shutting down, a demand spike you can't meet. Understanding where your risk comes from helps you decide where to invest in protection."]),
+    el("div",{class:"two-col"},[
+      el("div",{class:"kpi", style:"padding:22px;"},[
+        el("div",{class:"num", style:"color:"+riskColor+";font-size:34px;"},[String(100-riskScore)+"%"]),
+        el("div",{class:"lab"},["Composite Risk Exposure"]),
+        el("div",{class:"badge "+(riskScore>=65?"green":riskScore>=40?"amber":"red"), style:"margin-top:10px;display:inline-block;"},[riskLevel])
+      ]),
+      el("div",{class:"chart-wrap"},[
+        el("h3",{},["Risk Factor Breakdown"]),
+        el("canvas",{id:"riskChart", height:"180"},[])
+      ])
+    ]),
+    (function(){
+      var wrap = el("div",{style:"margin-top:18px;"},[el("h3",{},["Detailed Risk Factors"])]);
+      factors.forEach(function(f){
+        var dotColor = f.value>=60 ? "#e15b5b" : f.value>=35 ? "#f0a83c" : "#4fbf67";
+        wrap.appendChild(el("div",{class:"risk-row"},[
+          el("span",{class:"risk-dot", style:"background:"+dotColor}),
+          el("div",{style:"flex:1;"},[
+            el("div",{style:"display:flex;justify-content:space-between;font-size:13.5px;"},[
+              el("span",{},[f.name]),
+              el("span",{class:"muted"},[String(f.value)+"%"])
+            ]),
+            el("div",{class:"muted small"},[f.note])
+          ])
+        ]));
+      });
+      return wrap;
+    })(),
+    el("div",{class:"footer-actions"},[
+      el("button",{class:"btn secondary", onclick:prevStage},["← Back"]),
+      el("button",{class:"btn", onclick:nextStage},["Proceed to Cost Optimization →"])
+    ])
+  ]);
+  container.appendChild(card);
+
+  setTimeout(function(){
+    var canvas = document.getElementById("riskChart");
+    if(canvas){
+      drawDonut(canvas, factors.map(function(f,i){
+        var palette = ["#f0a83c","#2ec4b6","#e15b5b","#4fbf67","#8b5cf6"];
+        return { value: f.value, color: palette[i%palette.length] };
+      }));
+    }
+  }, 50);
+}
+
+function renderCostOpt(container){
+  container.appendChild(metricsBarNode());
+  var s = state.costSliders;
+  var card = el("div",{class:"card fade-in"},[
+    el("h2",{},["💰 Cost Optimization"]),
+    el("p",{class:"lead"},["Cost optimization means finding ways to reduce spending without breaking the parts of your supply chain that matter most, like speed or reliability. Adjust the sliders below to simulate three common cost levers used by real supply chain teams."]),
+    el("div",{class:"slider-row"},[
+      el("label",{},[el("span",{},["Labor Cost Optimization"]), el("span",{},[String(s.laborOpt)+"%"])]),
+      el("input",{type:"range", min:"0", max:"100", value:String(s.laborOpt), id:"laborSlider"},[])
+    ]),
+    el("div",{class:"slider-row"},[
+      el("label",{},[el("span",{},["Packaging & Materials Efficiency"]), el("span",{},[String(s.packagingOpt)+"%"])]),
+      el("input",{type:"range", min:"0", max:"100", value:String(s.packagingOpt), id:"packagingSlider"},[])
+    ]),
+    el("div",{class:"slider-row"},[
+      el("label",{},[el("span",{},["Procurement Negotiation Strength"]), el("span",{},[String(s.procurementOpt)+"%"])]),
+      el("input",{type:"range", min:"0", max:"100", value:String(s.procurementOpt), id:"procurementSlider"},[])
+    ]),
+    el("div",{class:"grid-3", style:"margin-top:20px;"},[
+      el("div",{class:"kpi"},[el("div",{class:"num", id:"projSavings"},["--"]), el("div",{class:"lab"},["Projected Annual Savings"])]),
+      el("div",{class:"kpi"},[el("div",{class:"num", id:"costEffScore"},["--"]), el("div",{class:"lab"},["Cost Efficiency Impact"])]),
+      el("div",{class:"kpi"},[el("div",{class:"num", id:"marginImpact"},["--"]), el("div",{class:"lab"},["Est. Margin Improvement"])])
+    ]),
+    el("div",{class:"explain-box", style:"margin-top:18px;"},[
+      el("strong",{},["Why this matters: "]),
+      "Pushing cost optimization too aggressively (very high slider values) can squeeze suppliers, workers, or material quality -- which often shows up later as lower Customer Satisfaction or higher Risk. A moderate approach usually sustains savings without side effects."
+    ]),
+    el("div",{class:"footer-actions"},[
+      el("button",{class:"btn secondary", onclick:prevStage},["← Back"]),
+      el("button",{class:"btn", onclick: function(){
+        var avg = (state.costSliders.laborOpt + state.costSliders.packagingOpt + state.costSliders.procurementOpt)/3;
+        var delta = { cost: Math.round((avg-50)/6), satisfaction: avg>80 ? -4 : 0, risk: avg>80 ? -3 : 0 };
+        applyDelta(delta);
+        nextStage();
+      }},["Apply & Continue →"])
+    ])
+  ]);
+  container.appendChild(card);
+
+  function updateOutputs(){
+    var avg = (state.costSliders.laborOpt + state.costSliders.packagingOpt + state.costSliders.procurementOpt)/3;
+    var savings = Math.round((state.company.revenue * (avg/100) * 0.04) * 100)/100;
+    document.getElementById("projSavings").textContent = "$" + savings.toFixed(2) + "M";
+    document.getElementById("costEffScore").textContent = Math.round(avg/2) > 0 ? "+"+Math.round(avg/6) : "0";
+    document.getElementById("marginImpact").textContent = (avg/100*3.2).toFixed(1) + "%";
+  }
+  setTimeout(function(){
+    ["laborSlider","packagingSlider","procurementSlider"].forEach(function(id, i){
+      var keyMap = ["laborOpt","packagingOpt","procurementOpt"];
+      var slider = document.getElementById(id);
+      slider.addEventListener("input", function(e){
+        state.costSliders[keyMap[i]] = parseInt(e.target.value,10);
+        var labelEl = slider.parentElement.querySelector("label span:last-child");
+        labelEl.textContent = e.target.value + "%";
+        updateOutputs();
+      });
+    });
+    updateOutputs();
+  }, 30);
+}
+
+function renderAI(container){
+  container.appendChild(metricsBarNode());
+  var m = state.metrics;
+  var sorted = Object.keys(m).map(function(k){return [k,m[k]];}).sort(function(a,b){return b[1]-a[1];});
+  var weakestKey = sorted[sorted.length-1][0];
+  var strongestKey = sorted[0][0];
+
+  var recBank = {
+    cost: "Consolidate supplier orders and renegotiate freight contracts to unlock volume discounts.",
+    speed: "Shift a portion of shipments to faster transport modes for high-margin, time-sensitive products.",
+    risk: "Diversify your supplier and warehouse footprint so a single disruption cannot halt the whole operation.",
+    satisfaction: "Invest in delivery tracking and proactive communication to manage customer expectations.",
+    sustainability: "Consolidate shipments and shift some routes to rail or sea freight to cut emissions per unit."
+  };
+
+  var recommendations = sorted.slice(-3).map(function(pair){ return recBank[pair[0]]; });
+
+  var card = el("div",{class:"card fade-in"},[
+    el("h2",{},["🤖 AI Recommendations"]),
+    el("p",{class:"lead"},["Based on the decisions you've made so far, here is an automated analysis of your supply chain's current strengths and weak points, along with concrete next steps."]),
+    el("div",{class:"two-col"},[
+      el("div",{},[
+        el("h3",{},["Strongest Area"]),
+        el("div",{class:"list-item"},[el("span",{class:"icon good"},["✓"]), el("span",{},[metricLabel(strongestKey) + " is currently your best-performing metric at " + m[strongestKey] + "/100."])])
+      ]),
+      el("div",{},[
+        el("h3",{},["Weakest Area"]),
+        el("div",{class:"list-item"},[el("span",{class:"icon bad"},["!"]), el("span",{},[metricLabel(weakestKey) + " needs attention, currently at " + m[weakestKey] + "/100."])])
+      ])
+    ]),
+    el("h3",{style:"margin-top:20px;"},["Recommended Actions"]),
+    (function(){
+      var wrap = el("div",{},[]);
+      recommendations.forEach(function(r,i){
+        wrap.appendChild(el("div",{class:"list-item"},[el("span",{class:"icon warn"},[String(i+1)]), el("span",{},[r])]));
+      });
+      return wrap;
+    })(),
+    el("div",{class:"footer-actions"},[
+      el("button",{class:"btn secondary", onclick:prevStage},["← Back"]),
+      el("button",{class:"btn", onclick:nextStage},["View Final Dashboard →"])
+    ])
+  ]);
+  container.appendChild(card);
+}
+
+function buildFinalResult(){
+  var score = computeOverallScore();
+  var sorted = Object.keys(state.metrics).map(function(k){return [k, state.metrics[k]];}).sort(function(a,b){return b[1]-a[1];});
+  var strengths = sorted.slice(0,2).map(function(p){return metricLabel(p[0]);});
+  var weaknesses = sorted.slice(-2).map(function(p){return metricLabel(p[0]);});
+  var lowest = sorted[sorted.length-1];
+  var riskMap = {
+    cost:"Your operations are running expensive -- thin margins could hurt you if prices rise further or a downturn hits.",
+    speed:"Slow deliveries could push customers toward faster competitors, especially for time-sensitive products.",
+    risk:"Your supply chain has weak protection against disruptions -- a single supplier, port delay, or shortage could halt operations.",
+    satisfaction:"Customers may be unhappy with speed, reliability, or communication, which can lead to churn and bad reviews.",
+    sustainability:"High environmental impact may create regulatory, reputational, or long-term cost risks as green regulations tighten."
+  };
+  var biggestRisk = riskMap[lowest[0]];
+  var improvementBank = {
+    cost:"Renegotiate supplier contracts or consolidate orders to unlock volume discounts and lower unit costs.",
+    speed:"Shift a portion of shipments to faster transport for your most time-sensitive, high-margin products.",
+    risk:"Add a second supplier or regional warehouse so a single disruption can't halt your whole operation.",
+    satisfaction:"Improve delivery tracking and communication so customers know exactly when to expect their orders.",
+    sustainability:"Consolidate shipments and shift some routes to rail or sea freight to cut emissions per unit shipped."
+  };
+  var improvementKeys = sorted.slice(-3).map(function(p){return p[0];});
+  var improvements = improvementKeys.map(function(k){return improvementBank[k];});
+  return { score:score, strengths:strengths, weaknesses:weaknesses, biggestRisk:biggestRisk, improvements:improvements };
+}
+
+function renderFinal(container){
+  var result = buildFinalResult();
+  var ringColor = result.score>=70 ? "#4fbf67" : result.score>=45 ? "#f0a83c" : "#e15b5b";
+
+  var card = el("div",{class:"card fade-in"},[
+    el("h2",{},["🏁 Final Performance Dashboard"]),
+    el("p",{class:"muted"},[state.company.name + " -- " + state.company.industry]),
+    el("div",{class:"two-col", style:"margin-top:20px;"},[
+      el("div",{style:"text-align:center;"},[
+        el("div",{class:"score-ring", id:"scoreRing"},[
+          el("span",{class:"score-num"},[String(result.score)]),
+          el("span",{class:"score-sub"},["/ 100"])
+        ]),
+        el("p",{class:"muted small"},["Overall Supply Chain Score"])
+      ]),
+      el("div",{},[
+        el("h3",{},["Decisions Made"]),
+        (function(){
+          var table = el("table",{class:"summary-table"},[]);
+          var tbody = el("tbody",{},[]);
+          Object.keys(state.choices).forEach(function(key){
+            var stepDef = STEPS.filter(function(s){return s.key===key;})[0];
+            tbody.appendChild(el("tr",{},[
+              el("td",{},[stepDef.title]),
+              el("td",{},[state.choices[key].label])
+            ]));
+          });
+          table.appendChild(tbody);
+          return table;
+        })()
+      ])
+    ])
+  ]);
+  container.appendChild(card);
+
+  container.appendChild(el("div",{class:"card"},[
+    el("h3",{},["Live Metrics -- Final State"]),
+    metricsBarNode()
+  ]));
+
+  var twoCol = el("div",{class:"two-col"},[
+    el("div",{class:"card"},[
+      el("h3",{},["💪 Strengths"]),
+      (function(){
+        var wrap = el("div",{},[]);
+        result.strengths.forEach(function(s){
+          wrap.appendChild(el("div",{class:"list-item"},[el("span",{class:"icon good"},["✓"]), el("span",{},[s + " is a strong point in your supply chain design."])]));
+        });
+        return wrap;
+      })(),
+      el("h3",{style:"margin-top:20px;"},["⚠️ Weaknesses"]),
+      (function(){
+        var wrap = el("div",{},[]);
+        result.weaknesses.forEach(function(w){
+          wrap.appendChild(el("div",{class:"list-item"},[el("span",{class:"icon bad"},["!"]), el("span",{},[w + " is currently a weak point that needs attention."])]));
+        });
+        return wrap;
+      })()
+    ]),
+    el("div",{class:"card"},[
+      el("h3",{},["🚨 Biggest Risk"]),
+      el("p",{class:"lead", style:"font-size:14px;"},[result.biggestRisk]),
+      el("h3",{style:"margin-top:20px;"},["🛠️ Three Practical Improvements"]),
+      (function(){
+        var wrap = el("div",{},[]);
+        result.improvements.forEach(function(imp,i){
+          wrap.appendChild(el("div",{class:"list-item"},[el("span",{class:"icon warn"},[String(i+1)]), el("span",{},[imp])]));
+        });
+        return wrap;
+      })()
+    ])
+  ]);
+  container.appendChild(twoCol);
+
+  container.appendChild(el("div",{class:"card", style:"text-align:center;"},[
+    el("h3",{},["Want to try a different strategy?"]),
+    el("p",{class:"muted small"},["A new company and new challenges await."]),
+    el("button",{class:"btn teal", onclick:replay},["🔁 Replay with New Company"])
+  ]));
+
+  setTimeout(function(){
+    var ring = document.getElementById("scoreRing");
+    if(ring){
+      ring.style.setProperty("--ringcolor", ringColor);
+      ring.style.setProperty("--score", "0");
+      setTimeout(function(){ ring.style.setProperty("--score", String(result.score)); }, 60);
+    }
+  }, 30);
+}
+
+/* ---------- MAIN RENDER ---------- */
+function render(){
+  var app = document.getElementById("app");
+  app.innerHTML = "";
+  app.appendChild(topBar());
+  var stage = STAGES[state.stageIndex];
+
+  if(stage==="welcome") renderWelcome(app);
+  else if(stage==="profile") renderProfile(app);
+  else if(stage==="dashboard") renderDashboard(app);
+  else if(stage==="inventory") renderDecisionStage(app, "inventory", "📦", "Inventory Analysis", "Inventory decisions affect how much cash is tied up in stock versus how protected you are from shortages.");
+  else if(stage==="warehouse") renderDecisionStage(app, "warehouse", "🏬", "Warehouse Management", "Warehouse strategy affects delivery speed, storage cost, and resilience to disruption.");
+  else if(stage==="supplier") renderDecisionStage(app, "supplier", "🏭", "Supplier Optimization", "Supplier and factory decisions set the foundation for cost, risk, and speed.");
+  else if(stage==="transport") renderDecisionStage(app, "transport", "🚚", "Transportation Decisions", "Transport mode shapes speed, cost, and environmental impact.");
+  else if(stage==="risk") renderRisk(app);
+  else if(stage==="costopt") renderCostOpt(app);
+  else if(stage==="ai") renderAI(app);
+  else if(stage==="final") renderFinal(app);
+}
+
+render();
+})();
+</script>
+</body>
+</html>
