@@ -1062,6 +1062,102 @@ Developed a gamified Prompt Engineering simulator that teaches prompt optimizati
 - Compared weak and optimized prompts.
 - Understood how better prompts generate higher-quality AI responses.
 
+- # 📅 Day 36 – Cognitive Pattern Explorer
+
+## 📌 Project Overview
+Built an interactive educational application that helps users explore different thinking patterns through guided scenarios, drag-and-drop activities, and personalized reflection.
+
+### 🚀 Key Learnings
+- Explored calm and stress-based thinking modes.
+- Learned how people process information and make decisions.
+- Completed interactive reflection exercises.
+- Reviewed personalized thinking profiles.
+- Built an educational HTML application with interactive UI.
+
+---
+
+# 📅 Day 37 – Task Compass
+
+## 📌 Project Overview
+Developed an interactive organizational workflow simulator that teaches task ownership, workflow routing, delegation, and collaboration through realistic workplace scenarios.
+
+### 🚀 Key Learnings
+- Learned task ownership across departments.
+- Understood organizational workflows.
+- Completed workflow routing challenges.
+- Explored collaboration strategies.
+- Improved organizational thinking skills.
+
+---
+
+# 📅 Day 38 – Typing Speed Studio
+
+## 📌 Project Overview
+Built a premium browser-based typing practice platform featuring multiple typing modes, live performance tracking, and analytics.
+
+### 🚀 Key Learnings
+- Created an interactive typing application.
+- Practiced different typing modes.
+- Explored typing speed analytics.
+- Measured typing accuracy and performance.
+- Improved productivity application development skills.
+
+---
+
+# 📅 Day 39 – PDF Splitter & Merger
+
+## 📌 Project Overview
+Developed a browser-based PDF utility capable of splitting, merging, previewing, and processing PDF documents locally.
+
+### 🚀 Key Learnings
+- Built a complete PDF processing application.
+- Learned browser-based PDF manipulation.
+- Tested PDF splitting and merging workflows.
+- Explored document preview functionality.
+- Improved client-side file handling.
+
+---
+
+# 📅 Day 40 – AI Assistant Builder
+
+## 📌 Project Overview
+Designed and developed a production-ready AI Assistant with a custom system prompt, documentation panel, and premium conversational interface.
+
+### 🚀 Key Learnings
+- Designed an AI assistant for specific user needs.
+- Learned production-quality prompt engineering.
+- Built a professional AI chat interface.
+- Explored AI product design principles.
+- Reviewed assistant documentation and system prompts.
+
+---
+
+# 📅 Day 41 – Interactive Learning Studio
+
+## 📌 Project Overview
+Created an AI-powered educational platform featuring interactive lessons, quizzes, diagrams, exercises, and practical projects within a modern learning environment.
+
+### 🚀 Key Learnings
+- Learned instructional design concepts.
+- Completed interactive quizzes and exercises.
+- Explored Transformer architecture fundamentals.
+- Built an engaging educational interface.
+- Improved AI-assisted learning experience design.
+
+---
+
+# 📅 Day 42 – Personal Financial Command Center
+
+## 📌 Project Overview
+Built an AI-powered financial dashboard integrating budgeting, analytics, simulations, financial health scoring, and personalized recommendations.
+
+### 🚀 Key Learnings
+- Built a modern financial dashboard.
+- Explored budgeting and expense tracking.
+- Used interactive financial simulations.
+- Reviewed AI-powered financial insights.
+- Learned financial data visualization and planning.
+
 ## 🎯 Challenge
 
 **ABTalks 60-Day Claude AI Mastery Challenge**
@@ -1103,6 +1199,13 @@ Continuously building AI-powered projects to strengthen practical skills in AI, 
 ✅ Day 33 Completed
 ✅ Day 34 Completed
 ✅ Day 35 Completed
+✅ Day 36 Completed
+✅ Day 37 Completed
+✅ Day 38 Completed
+✅ Day 39 Completed
+✅ Day 40 Completed
+✅ Day 41 Completed
+✅ Day 42 Completed
   
    
 
